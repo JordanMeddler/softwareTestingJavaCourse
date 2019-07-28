@@ -8,7 +8,6 @@ import static org.hamcrest.core.IsNot.not;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.JavascriptExecutor;
@@ -23,55 +22,59 @@ public class GroupCreation {
     wd = new FirefoxDriver();
     js = (JavascriptExecutor) wd;
     vars = new HashMap<String, Object>();
-    // 1 | open | /addressbook/ |  |
     wd.get("http://localhost/addressbook/");
-    // 2 | setWindowSize | 1382x784 |  |
-    wd.manage().window().setSize(new Dimension(1382, 784));
-    // 3 | click | name=user |  |
+    login("admin", "secret");
+  }
+
+  private void login(String username, String password) {
     wd.findElement(By.name("user")).click();
-    // 4 | click | name=user |  |
     wd.findElement(By.name("user")).click();
-    // 5 | doubleClick | name=user |  |
     {
       WebElement element = wd.findElement(By.name("user"));
       Actions builder = new Actions(wd);
       builder.doubleClick(element).perform();
     }
-    // 6 | type | name=user | admin |
-    wd.findElement(By.name("user")).sendKeys("admin");
-    // 7 | type | name=pass | secret |
-    wd.findElement(By.name("pass")).sendKeys("secret");
-    // 8 | click | css=input:nth-child(7) |  |
+    wd.findElement(By.name("user")).sendKeys(username);
+    wd.findElement(By.name("pass")).sendKeys(password);
     wd.findElement(By.cssSelector("input:nth-child(7)")).click();
   }
+
   @After
   public void tearDown() {
     wd.quit();
   }
   @Test
   public void testGroupCreation() {
-    // Test name: GroupCreation
-    // Step # | name | target | value | comment
+    gotoGroupPage();
+    initGroupCreation();
+    fillGroupForm(new GroupData("test1", "test", "test"));
+    submitGroupCreation();
+    returnToGroupPage();
+  }
 
-    // 9 | click | linkText=groups |  | 
-    wd.findElement(By.linkText("groups")).click();
-    // 10 | click | name=new |  | 
-    wd.findElement(By.name("new")).click();
-    // 11 | click | name=group_name |  | 
-    wd.findElement(By.name("group_name")).click();
-    // 12 | type | name=group_name | test1 | 
-    wd.findElement(By.name("group_name")).sendKeys("test1");
-    // 13 | click | name=group_header |  | 
-    wd.findElement(By.name("group_header")).click();
-    // 14 | type | name=group_header | test | 
-    wd.findElement(By.name("group_header")).sendKeys("test");
-    // 15 | click | name=group_footer |  | 
-    wd.findElement(By.name("group_footer")).click();
-    // 16 | type | name=group_footer | test | 
-    wd.findElement(By.name("group_footer")).sendKeys("test");
-    // 17 | click | name=submit |  | 
-    wd.findElement(By.name("submit")).click();
-    // 18 | click | linkText=group page |  | 
+  private void returnToGroupPage() {
+    // 18 | click | linkText=group page |  |
     wd.findElement(By.linkText("group page")).click();
+  }
+
+  private void submitGroupCreation() {
+    wd.findElement(By.name("submit")).click();
+  }
+
+  private void fillGroupForm(GroupData groupData) {
+    wd.findElement(By.name("group_name")).click();
+    wd.findElement(By.name("group_name")).sendKeys(groupData.getName());
+    wd.findElement(By.name("group_header")).click();
+    wd.findElement(By.name("group_header")).sendKeys(groupData.getHeader());
+    wd.findElement(By.name("group_footer")).click();
+    wd.findElement(By.name("group_footer")).sendKeys(groupData.getFooter());
+  }
+
+  private void initGroupCreation() {
+    wd.findElement(By.name("new")).click();
+  }
+
+  private void gotoGroupPage() {
+    wd.findElement(By.linkText("groups")).click();
   }
 }
